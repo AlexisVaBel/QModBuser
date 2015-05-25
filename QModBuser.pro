@@ -16,7 +16,10 @@ SOURCES += \
     view/consoleview.cpp \
     view/mainwindow.cpp \
     view/viewportadaptor.cpp \
-    view/comportview.cpp
+    view/comportview.cpp \
+    cmn/timescaledraw.cpp \
+    view/plotpainter.cpp \
+    cmn/charcoder.cpp
 
 HEADERS += \
     cntr/port/portinterface.hpp \
@@ -26,4 +29,19 @@ HEADERS += \
     view/consoleview.hpp \
     view/mainwindow.hpp \
     view/viewportadaptor.hpp \
-    view/comportview.hpp
+    view/comportview.hpp \
+    cmn/timescaledraw.h \
+    view/plotpainter.h \
+    cmn/charcoder.h
+
+win32{
+INCLUDEPATH += C:/qwt-6.0.2/include
+LIBS += -LC:/qwt-6.0.2/lib -lqwt
+}
+
+unix{
+INCLUDEPATH += /usr/include/qwt6_0_2
+LIBS += -L/usr/local/qwt-6.0.2/lib -lqwt
+LIBS += -lX11
+}
+

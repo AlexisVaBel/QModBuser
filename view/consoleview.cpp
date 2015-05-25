@@ -2,13 +2,18 @@
 #include <QDebug>
 
 ConsoleView::ConsoleView(QWidget *parent, QString strbeginline) :
-    QPlainTextEdit(parent){
-    m_iRcvd                 =0;
-    m_strBeginLine    =strbeginline;
-    m_strLine               ="";
+    QTextEdit(parent){
+    m_coder                   =new CharCoder();
+    m_iRcvd                   =0;
+    m_iCmdPos             =0;
+    m_chPos                   =0;
+    m_bCmdFull           =false;
+    m_strBeginLine      =strbeginline;
+    m_typeConv            =convUTF16;
+//    m_typeConv            =convASCII;
     m_chSpacer            =QChar(' ');    
     QPalette                p=palette();
-    setMinimumSize(QSize(320,180));
+    setMinimumSize(QSize(CNS_WIDTH,CNS_HEIGHT));
     document()->setMaximumBlockCount(1000);
     p.setColor(QPalette::Base,Qt::black);
     p.setColor(QPalette::Text,Qt::green);
@@ -19,19 +24,34 @@ ConsoleView::ConsoleView(QWidget *parent, QString strbeginline) :
 ConsoleView::~ConsoleView(){
 }
 
-void ConsoleView::putData(const char *data, int iCnt){
-    int iVal;
+void ConsoleView::putData(const char *data, int iCnt){    
+    int iVal=0;
     if(m_iRcvd>MAX_IN_LINE){
         insertPlainText(tr("\r\n"));
         m_iRcvd=0;
     }
     if(m_iRcvd==0){insertPlainText(tr("in:   "));};
-//    insertPlainText(QString(data));
     for (int i=0;i<iCnt;i++){
+        iVal=data[i];
+        qDebug()<<iVal;
+        m_chIn[m_iRcvd]=data[i];
+        if(m_typeConv==convUTF16){
+            if(m_chPos%2==0){
+            // take it
+                insertPlainText(m_coder->decode(&m_chIn[0],m_iRcvd,m_typeConv));
+                if(!m_chSpacer.isLetter())insertPlainText(m_chSpacer);
+                m_iRcvd=0;
+                continue;
+            }
+        }else{
+            // take it
+            insertPlainText(m_coder->decode(&m_chIn[0],m_iRcvd,m_typeConv));
+            if(!m_chSpacer.isLetter())insertPlainText(m_chSpacer);
+            m_iRcvd=0;
+            continue;
+        }
         m_iRcvd++;
-        iVal=QChar(data[i]).toLatin1();
-        insertPlainText(QString::number(iVal));
-        if(!m_chSpacer.isLetter())insertPlainText(m_chSpacer);
+        m_chPos++;
     };
 }
 
@@ -50,24 +70,48 @@ void ConsoleView::mouseDoubleClickEvent(QMouseEvent *e){
 
 void ConsoleView::keyPressEvent(QKeyEvent *e){
     switch(e->key()){
-    case    Qt::Key_Backspace:
-    case    Qt::Key_Left:
+    case    Qt::Key_Backspace:{
+        if(m_sendStr.length()>0){
+            m_sendStr.chop(1);
+            this->textCursor().deletePreviousChar();
+        }
+    }
+    break;
+    case    Qt::Key_Left:                
     case    Qt::Key_Right:
     case    Qt::Key_Down:
         break;
+    case    Qt::Key_Up:
+        this->textCursor().clearSelection();
+        break;
     case    Qt::Key_Return:
     case    Qt::Key_Enter:
-        if(!m_strLine.isEmpty()){
-            emit     sendDataOut(m_strLine.toStdString().c_str(),m_strLine.toStdString().size());
+        if(!m_sendStr.isEmpty()){
+            int iCntSnd=0;
+            iCntSnd=m_coder->encode(m_sendStr,m_chOut,MAX_CHARS,m_typeConv);
+            if(iCntSnd>0){
+                emit     sendDataOut(m_chOut,iCntSnd);
+            }else qDebug()<<"nothing to send"<<iCntSnd;
             m_iRcvd=0;
+            if(m_iCmdPos>MAX_PREV){
+                m_iCmdPos=0;
+                m_bCmdFull=true;
+            }else if(!m_bCmdFull){
+                m_lstCmdPrev.append(m_sendStr);
+                m_iCmdPos++;
+            };
+            if(m_bCmdFull){
+                m_lstCmdPrev.replace(m_iCmdPos++,m_sendStr);
+            }
+            m_sendStr.clear();
         }
-        m_strLine.clear();
-        QPlainTextEdit::keyPressEvent(e);
+        QTextEdit::keyPressEvent(e);
         insertPlainText(m_strBeginLine);
         break;
     default:
-        QPlainTextEdit::keyPressEvent(e);
-        m_strLine.append(e->text());
+        QTextEdit::keyPressEvent(e);
+        m_sendStr.append(e->text().toLocal8Bit());
+
     }
 }
 

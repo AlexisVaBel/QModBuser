@@ -48,11 +48,18 @@ void MainWindow::changePortState(bool bOpen){
     }
 }
 
-
 void MainWindow::showPorts(){    
     m_viewCom->show();
 }
 
+void MainWindow::showGraph(){
+    m_painter->show();        
+    for(int i=0;i<1000;i++){
+        m_painter->appendData(QDateTime::currentMSecsSinceEpoch(),i);
+        m_painter->refreshPlot();
+    }
+    m_painter->getVectorData();
+}
 
 void MainWindow::prepareView(){
     QHBoxLayout *ltConsole,*ltControl,*ltParams;
@@ -65,8 +72,10 @@ void MainWindow::prepareView(){
     m_lblMain    = new QLabel();
     m_lblPort     = new QLabel();
     m_lblStatus  = new QLabel();
-    m_btnLd      =  new QPushButton();
-    m_viewCom =  new ComPortView();
+
+    m_btnLd         =  new QPushButton();
+    m_viewCom    =  new ComPortView();
+    m_painter       =new PlotPainter();
 
     m_viewCom->setModal(true);
     m_viewCom->setAdaptor(m_adaptor);
@@ -92,10 +101,11 @@ void MainWindow::prepareView(){
 }
 
 void MainWindow::prepareActions(){
-    m_actEdit           =new QAction(tr("Edit"),this);
-    m_actShowPorts=new QAction(tr("ShowPorts"),this);
-    m_actSetting      =new QAction(tr("Setting"),this);
-    m_actQuit          =new QAction(tr("Quit"),this);
+    m_actEdit              =new QAction(tr("Edit"),this);
+    m_actShowPorts   =new QAction(tr("ShowPorts"),this);
+    m_actSetting         =new QAction(tr("Setting"),this);
+    m_actQuit             =new QAction(tr("Quit"),this);
+    m_actShowGraph =new QAction(tr("Graph"),this);
     m_actConnect    =new QAction(tr("Connect"),this);
     m_actConnect->setCheckable(true);
 
@@ -104,6 +114,7 @@ void MainWindow::prepareActions(){
 
     toolsUp->addAction(m_actEdit);
     toolsUp->addAction(m_actSetting);
+    toolsUp->addAction(m_actShowGraph);
     toolsBottom->addAction(m_actShowPorts);
     toolsBottom->addAction(m_actConnect);
     toolsBottom->addSeparator();
@@ -115,9 +126,7 @@ void MainWindow::prepareActions(){
 void MainWindow::prepareElements(){    
     m_cnslIn         =  new ConsoleView (this,"in :");
     m_cnslOut      =  new ConsoleView (this,"out:");
-
     m_port            =new COMPort();    
-
     m_adaptor=new ViewPortAdaptor(this);
     m_adaptor->setViews(m_cnslIn,m_cnslOut);
     m_adaptor->setPorts(m_port);
@@ -126,6 +135,8 @@ void MainWindow::prepareElements(){
 void MainWindow::prepareSignSlots(){  
   connect(m_actConnect      ,SIGNAL(toggled(bool)),this,SLOT(changePortState(bool)));
   connect(m_actShowPorts  ,SIGNAL(triggered()),this,SLOT(showPorts()));
+  connect(m_actShowGraph,SIGNAL(triggered()),this,SLOT(showGraph()));
+//  connect(m_actShowGraph,SIGNAL(triggered()),m_painter,SLOT(show()));
 //  connect(m_actEdit             ,SIGNAL(triggered()),this,SLOT(showPorts()));
 //  connect(m_actSetting        ,SIGNAL(triggered()),this,SLOT(showPorts()));
   connect(m_actQuit            ,SIGNAL(triggered()),this,SLOT(close()));
