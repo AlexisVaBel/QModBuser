@@ -24,6 +24,7 @@ public slots:
     void     enCodeParams();
     void     deCodeParams();
     void     showPortName(QModelIndex idx);
+    void     setPreferedParams();
     void     showPortParams(QModelIndex idx);
     void     okPressed();
     void     cancelPressed();

@@ -1,58 +1,116 @@
 #include "consoleview.hpp"
-#include <QDebug>
+#include <QTextCodec>
+#include <QTextBlock>
 
-ConsoleView::ConsoleView(QWidget *parent, QString strbeginline) :
-    QTextEdit(parent){
-    m_coder                   =new CharCoder();
-    m_iRcvd                   =0;
-    m_iCmdPos             =0;
-    m_chPos                   =0;
-    m_bCmdFull           =false;
-    m_strBeginLine      =strbeginline;
-    m_typeConv            =convUTF16;
-//    m_typeConv            =convASCII;
-    m_chSpacer            =QChar(' ');    
-    QPalette                p=palette();
+ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
+    QTextEdit(parent){    
+    m_strStartLn       =    strStartLn;
+    m_convType         =    convHEX;
+    m_timerIdle         =    new QTimer(this);
+    m_timerIdle->setInterval(TIME_IDLE);
+    m_timerIdle->setSingleShot(true);
+    m_iChPos             =  0;
+
+    QPalette              p=palette();
     setMinimumSize(QSize(CNS_WIDTH,CNS_HEIGHT));
     document()->setMaximumBlockCount(1000);
     p.setColor(QPalette::Base,Qt::black);
     p.setColor(QPalette::Text,Qt::green);
     setPalette(p);    
-    insertPlainText(m_strBeginLine);
+    insertPlainText(m_strStartLn);
+    connect(m_timerIdle,SIGNAL(timeout()),SLOT(createNextLine()));
 }
 
 ConsoleView::~ConsoleView(){
 }
 
-void ConsoleView::putData(const char *data, int iCnt){    
-    int iVal=0;
-    if(m_iRcvd>MAX_IN_LINE){
-        insertPlainText(tr("\r\n"));
-        m_iRcvd=0;
+void ConsoleView::getData(const char *data, int iCnt){
+    QString str="";
+    if(m_timerIdle->isActive()){m_timerIdle->stop();}
+
+    if((m_convType==convASCII)||(m_convType==convUTF8)){
+        str=QString::fromLocal8Bit(data,iCnt);
+        if(str.contains(0x0A))str.append(m_strStartLn);
+    }else
+        if(m_convType==convUTF16){
+            for(int i=0;i<iCnt;i++){
+                m_arrIntByte[m_iChPos++]=data[i];
+                if(m_iChPos>=2){                    
+                    QByteArray byte;
+                    byte.append(m_arrIntByte[0]);
+                    byte.append(m_arrIntByte[1]);
+                    QTextCodec *codec=QTextCodec::codecForName("Windows-1251");
+                    str+=codec->toUnicode(byte);
+                    m_iChPos=0;
+                }
+            }
+        }
+        else
+        if(m_convType==convHEX){
+            int uiVal=0;
+            for(int i=0;i<iCnt;i++){
+                uiVal=data[i];
+                if(data[i]<0x00){
+                    uiVal=256+uiVal;
+                }
+                str+=QString( " %1" ).arg( uiVal, 1, 16 ).toUpper();
+            }
+            m_timerIdle->start();
+        }
+
+    if(!str.isEmpty()) {
+        insertPlainText(str);
+        this->moveCursor(QTextCursor::End);
     }
-    if(m_iRcvd==0){insertPlainText(tr("in:   "));};
-    for (int i=0;i<iCnt;i++){
-        iVal=data[i];
-        qDebug()<<iVal;
-        m_chIn[m_iRcvd]=data[i];
-        if(m_typeConv==convUTF16){
-            if(m_chPos%2==0){
-            // take it
-                insertPlainText(m_coder->decode(&m_chIn[0],m_iRcvd,m_typeConv));
-                if(!m_chSpacer.isLetter())insertPlainText(m_chSpacer);
-                m_iRcvd=0;
+}
+
+void ConsoleView::createNextLine(){
+    insertPlainText("\r\n"+m_strStartLn);
+}
+
+void ConsoleView::sendConvData(){
+    QString strSend=this->textCursor().block().text();
+    strSend=strSend.remove(m_strStartLn);
+    if(strSend.isEmpty())return;
+    if((m_convType==convASCII)||(m_convType==convUTF8)){
+        emit     sendDataOut(strSend.toStdString().c_str(),strSend.toStdString().length());
+    }else
+    if(m_convType==convUTF16){        
+        uint uiVal=0;
+        char ch[strSend.length()*2];
+        for(int i=0;i<strSend.length();i++){
+            uiVal=strSend.at(i).unicode();
+            ch[i*2]     =uiVal>>8;
+            ch[i*2+1] =uiVal&0xFF;
+        }
+        emit     sendDataOut(ch,strSend.length()*2);
+    }
+    else{        
+        bool ok=false;
+        QString str="";
+        int iVal=0,iPos=0;
+        char ch[strSend.count()];
+        for(int i=0;i<=strSend.count();i++){
+            if(i==strSend.count()){
+                iVal=str.toInt(&ok,16);
+                if(ok){
+                    ch[iPos++]=iVal;
+                };
+                str.clear();
+                break;
+            }
+            if(strSend.at(i)==' '){
+                iVal=str.toInt(&ok,16);
+                if(ok){
+                    ch[iPos++]=iVal;
+                };
+                str.clear();
                 continue;
             }
-        }else{
-            // take it
-            insertPlainText(m_coder->decode(&m_chIn[0],m_iRcvd,m_typeConv));
-            if(!m_chSpacer.isLetter())insertPlainText(m_chSpacer);
-            m_iRcvd=0;
-            continue;
-        }
-        m_iRcvd++;
-        m_chPos++;
-    };
+            str.append(strSend.at(i));
+        }        
+        emit     sendDataOut(ch,iPos);
+    }
 }
 
 void ConsoleView::clearOld(){
@@ -64,17 +122,15 @@ void ConsoleView::mousePressEvent(QMouseEvent *e){
     setFocus();
 }
 
+
 void ConsoleView::mouseDoubleClickEvent(QMouseEvent *e){
     Q_UNUSED(e);
 }
 
 void ConsoleView::keyPressEvent(QKeyEvent *e){
     switch(e->key()){
-    case    Qt::Key_Backspace:{
-        if(m_sendStr.length()>0){
-            m_sendStr.chop(1);
-            this->textCursor().deletePreviousChar();
-        }
+    case    Qt::Key_Backspace:{        
+            this->textCursor().deletePreviousChar();        
     }
     break;
     case    Qt::Key_Left:                
@@ -82,36 +138,15 @@ void ConsoleView::keyPressEvent(QKeyEvent *e){
     case    Qt::Key_Down:
         break;
     case    Qt::Key_Up:
-        this->textCursor().clearSelection();
         break;
     case    Qt::Key_Return:
-    case    Qt::Key_Enter:
-        if(!m_sendStr.isEmpty()){
-            int iCntSnd=0;
-            iCntSnd=m_coder->encode(m_sendStr,m_chOut,MAX_CHARS,m_typeConv);
-            if(iCntSnd>0){
-                emit     sendDataOut(m_chOut,iCntSnd);
-            }else qDebug()<<"nothing to send"<<iCntSnd;
-            m_iRcvd=0;
-            if(m_iCmdPos>MAX_PREV){
-                m_iCmdPos=0;
-                m_bCmdFull=true;
-            }else if(!m_bCmdFull){
-                m_lstCmdPrev.append(m_sendStr);
-                m_iCmdPos++;
-            };
-            if(m_bCmdFull){
-                m_lstCmdPrev.replace(m_iCmdPos++,m_sendStr);
-            }
-            m_sendStr.clear();
-        }
+    case    Qt::Key_Enter:        
+            sendConvData();            
         QTextEdit::keyPressEvent(e);
-        insertPlainText(m_strBeginLine);
+        insertPlainText(m_strStartLn);
         break;
     default:
-        QTextEdit::keyPressEvent(e);
-        m_sendStr.append(e->text().toLocal8Bit());
-
+        QTextEdit::keyPressEvent(e);        
     }
 }
 

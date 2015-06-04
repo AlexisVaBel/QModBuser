@@ -26,18 +26,15 @@ bool COMPort::openPort(void *arg){
     std::string strFile=std::string(COMDIR)+std::string("/")+m_prms.strPort;
     m_iPortID=open(strFile.c_str(),O_RDWR|O_NOCTTY|O_NDELAY);
 //    m_iPortID=open(strFile.c_str(),O_RDWR|O_NOCTTY|O_NDELAY|O_NONBLOCK);
-    qDebug()<<"connect to "<<strFile.c_str()<<m_iPortID;
     fd=isatty(m_iPortID);
     if(fd!=1){
 	closePort();
 	return false;
     }
     if (!setPrmsPort(m_prms)) {
-        // set prm error
-        qDebug()<<"Not seted params";
+        // set prm error        
         return false;
-    }
-    qDebug()<<"opend";
+    }    
     m_bConnected=true;
     return true;
 }
@@ -49,10 +46,7 @@ bool COMPort::closePort(){
 }
 
 bool COMPort::readPort(char *chPack, int iCnt){    
-    int iVal=(read(m_iPortID,chPack,iCnt));
-    if(iVal<0){
-//        qDebug()<<iVal<<chPack<<"port "<<m_iPortID;
-    }
+    int iVal=(read(m_iPortID,chPack,iCnt));    
     return(iVal>0);
 }
 

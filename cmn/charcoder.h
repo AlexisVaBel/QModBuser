@@ -3,7 +3,7 @@
 #include <QString>
 
 enum enmConvType{
-    convASCII=0,convUTF8,convUTF16,convHEX
+    convASCII=0,convUTF8=1,convUTF16=2,convHEX=3
 };
 
 enum enmErrConv{

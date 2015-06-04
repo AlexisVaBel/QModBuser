@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "./port/portinterface.hpp"
-static const int LISTENERSLEEP=25;
+static const int LISTENERSLEEP=20000; // 20 msec
 static const int BUFFERINSZ      =255;
 class PortListener : public QObject
 {

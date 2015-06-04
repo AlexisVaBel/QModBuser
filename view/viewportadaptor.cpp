@@ -71,11 +71,10 @@ SerialParams ViewPortAdaptor::getPortPrms(QString strPort){
 }
 
 void ViewPortAdaptor::getPortByte(char *ch){
-    m_viewIn->putData(ch,1);
+    m_viewIn->getData(ch,1);
 }
 
 void ViewPortAdaptor::setPortData(const char *ch,int iCnt){
-    char *chSend=const_cast<char*> (ch);
-    qDebug()<<chSend;
+    char *chSend=const_cast<char*> (ch);    
     m_port->writePort(chSend,iCnt);
 }

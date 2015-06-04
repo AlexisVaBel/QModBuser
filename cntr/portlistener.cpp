@@ -1,4 +1,5 @@
 #include "portlistener.hpp"
+#include <iostream>
 #include <QDebug>
 
 PortListener::PortListener(QObject *parent) :

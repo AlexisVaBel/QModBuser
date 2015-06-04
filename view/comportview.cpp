@@ -50,10 +50,10 @@ void ComPortView::deCodeParams(){
     strCmb=m_cmbBaud->currentText();
     foreach (int iVal, m_mapBaud.keys()) {
         strMap=m_mapBaud.value(iVal);
-        qDebug()<<iVal<<strMap<<strCmb;
+//        qDebug()<<iVal<<strMap<<strCmb;
         if(QString::compare(strMap,strCmb,Qt::CaseInsensitive)==0){
             m_serialPrms.iBaudRate=iVal;
-            qDebug()<<iVal<<m_mapBaud.value(iVal);
+//            qDebug()<<iVal<<m_mapBaud.value(iVal);
             break;
         }
     }
@@ -81,6 +81,14 @@ void ComPortView::showPortName(QModelIndex idx){
     QTableWidgetItem *itemVal;
     itemVal     =new QTableWidgetItem(m_strPort);
     m_tblPrms->setItem(0,1,itemVal);
+}
+
+void ComPortView::setPreferedParams(){
+    m_serialPrms.iBaudRate=B9600;
+    m_serialPrms.iDataBits=CS8;
+    m_serialPrms.iFlowCnt=0;
+    m_serialPrms.iStopBits=0;
+    enCodeParams();
 }
 
 void ComPortView::showPortParams(QModelIndex idx){
@@ -242,11 +250,13 @@ void ComPortView::prepareView(){
 void ComPortView::prepareSignSlots(){
     connect(m_btnOk        ,SIGNAL(clicked())                                       ,this,SLOT(okPressed()));
     connect(m_btnCancel ,SIGNAL(clicked())                                       ,this,SLOT(cancelPressed()));
-    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(showPortParams(QModelIndex)));
+    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(okPressed()));
+//    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(showPortParams(QModelIndex)));
     connect(m_lstPorts      ,SIGNAL(clicked(QModelIndex))               ,this,SLOT(showPortName(QModelIndex)));
 }
 
 void ComPortView::showEvent(QShowEvent *){
     if(m_adaptor==0)return;
     loadPorts();
+    setPreferedParams();
 }
