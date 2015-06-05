@@ -9,8 +9,8 @@ ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
     m_timerIdle         =    new QTimer(this);
     m_timerIdle->setInterval(TIME_IDLE);
     m_timerIdle->setSingleShot(true);
-    m_iChPos             =  0;
 
+    m_coder               =new CharCoder();
     QPalette              p=palette();
     setMinimumSize(QSize(CNS_WIDTH,CNS_HEIGHT));
     document()->setMaximumBlockCount(1000);
@@ -27,90 +27,49 @@ ConsoleView::~ConsoleView(){
 void ConsoleView::getData(const char *data, int iCnt){
     QString str="";
     if(m_timerIdle->isActive()){m_timerIdle->stop();}
-
     if((m_convType==convASCII)||(m_convType==convUTF8)){
-        str=QString::fromLocal8Bit(data,iCnt);
+        str=m_coder->decodeToUTF8(data,iCnt);
         if(str.contains(0x0A))str.append(m_strStartLn);
     }else
         if(m_convType==convUTF16){
-            for(int i=0;i<iCnt;i++){
-                m_arrIntByte[m_iChPos++]=data[i];
-                if(m_iChPos>=2){                    
-                    QByteArray byte;
-                    byte.append(m_arrIntByte[0]);
-                    byte.append(m_arrIntByte[1]);
-                    QTextCodec *codec=QTextCodec::codecForName("Windows-1251");
-                    str+=codec->toUnicode(byte);
-                    m_iChPos=0;
-                }
-            }
+            str=m_coder->decodeToUTF16(data,iCnt);
         }
         else
         if(m_convType==convHEX){
-            int uiVal=0;
-            for(int i=0;i<iCnt;i++){
-                uiVal=data[i];
-                if(data[i]<0x00){
-                    uiVal=256+uiVal;
-                }
-                str+=QString( " %1" ).arg( uiVal, 1, 16 ).toUpper();
-            }
+            str=m_coder->decodeToHex(data,iCnt);
             m_timerIdle->start();
         }
-
     if(!str.isEmpty()) {
         insertPlainText(str);
         this->moveCursor(QTextCursor::End);
     }
 }
 
-void ConsoleView::createNextLine(){
-    insertPlainText("\r\n"+m_strStartLn);
-}
-
 void ConsoleView::sendConvData(){
     QString strSend=this->textCursor().block().text();
     strSend=strSend.remove(m_strStartLn);
     if(strSend.isEmpty())return;
-    if((m_convType==convASCII)||(m_convType==convUTF8)){
-        emit     sendDataOut(strSend.toStdString().c_str(),strSend.toStdString().length());
+
+    int iCnt;
+    char *pntCh;
+    char chOut[256];
+    memset(&chOut,0,sizeof(chOut));
+    pntCh=&chOut[0];
+    if((m_convType==convASCII)||(m_convType==convUTF8)){        
+        iCnt=m_coder->encodToUTF8(strSend,pntCh,256);
     }else
-    if(m_convType==convUTF16){        
-        uint uiVal=0;
-        char ch[strSend.length()*2];
-        for(int i=0;i<strSend.length();i++){
-            uiVal=strSend.at(i).unicode();
-            ch[i*2]     =uiVal>>8;
-            ch[i*2+1] =uiVal&0xFF;
-        }
-        emit     sendDataOut(ch,strSend.length()*2);
+    if(m_convType==convUTF16){
+        iCnt=m_coder->encodToUTF16(strSend,pntCh,256);
     }
-    else{        
-        bool ok=false;
-        QString str="";
-        int iVal=0,iPos=0;
-        char ch[strSend.count()];
-        for(int i=0;i<=strSend.count();i++){
-            if(i==strSend.count()){
-                iVal=str.toInt(&ok,16);
-                if(ok){
-                    ch[iPos++]=iVal;
-                };
-                str.clear();
-                break;
-            }
-            if(strSend.at(i)==' '){
-                iVal=str.toInt(&ok,16);
-                if(ok){
-                    ch[iPos++]=iVal;
-                };
-                str.clear();
-                continue;
-            }
-            str.append(strSend.at(i));
-        }        
-        emit     sendDataOut(ch,iPos);
+    else
+    if(m_convType==convHEX){
+        iCnt=m_coder->encodToHEX(strSend,pntCh,256);
     }
+    emit     sendDataOut(pntCh,iCnt);
+}
+
+void ConsoleView::createNextLine(){
+    insertPlainText("\r\n"+m_strStartLn);
 }
 
 void ConsoleView::clearOld(){
@@ -122,14 +81,14 @@ void ConsoleView::mousePressEvent(QMouseEvent *e){
     setFocus();
 }
 
-
 void ConsoleView::mouseDoubleClickEvent(QMouseEvent *e){
     Q_UNUSED(e);
 }
 
 void ConsoleView::keyPressEvent(QKeyEvent *e){
     switch(e->key()){
-    case    Qt::Key_Backspace:{        
+    case    Qt::Key_Backspace:{
+        if(this->textCursor().block().text().compare(m_strStartLn,Qt::CaseInsensitive)==0)break;
             this->textCursor().deletePreviousChar();        
     }
     break;

@@ -10,12 +10,20 @@ enum enmErrConv{
     errOverLng=-1,errNoneConv=-2,errConv=-3
 };
 
-
 class CharCoder{
 public:
     CharCoder();
-    int encode(QByteArray bytes, char*chOut, int iChLng, enmConvType convtype);
-    QString decode(char*chOut, int iChLng, enmConvType convtype);
+    ~CharCoder();
+//    int encode(QString strSend, char*chOut, int iChLng, enmConvType convtype);
+    int encodToUTF8(QString strSend, char*chOut, int iChLng);
+    int encodToUTF16(QString strSend, char*chOut, int iChLng);
+    int encodToHEX(QString strSend, char*chOut, int iChLng);
+    QString decodeToUTF8(const char *data, int iCnt);
+    QString decodeToUTF16(const char *data, int iCnt);
+    QString decodeToHex(const char *data, int iCnt);
+private:
+    int           m_iChPos;
+    ushort     m_arrIntByte[2];
 };
 
 #endif // CHARCODER_H

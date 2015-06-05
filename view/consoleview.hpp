@@ -35,13 +35,11 @@ protected:
     void    keyPressEvent (QKeyEvent *e);
     void    contextMenuEvent(QContextMenuEvent *e);
 private:    
-//    QByteArray       m_oneByte;
-    int                       m_iChPos;
-    ushort                m_arrIntByte[2];
+    CharCoder       *m_coder;
 
     QTimer              *m_timerIdle;        // to get idle in line
     QString              m_strStartLn;
-    volatile enmConvType   m_convType;
+    enmConvType   m_convType;
 };
 
 #endif // CONSOLEVIEW_HPP
