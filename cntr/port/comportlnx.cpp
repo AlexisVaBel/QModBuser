@@ -1,4 +1,4 @@
-#include "comport.hpp"
+#include "comportlnx.hpp"
 #include <termios.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -10,11 +10,11 @@
 
 #include <QDebug>
 
-COMPort::COMPort(){
+COMPortLnx::COMPortLnx(){
     m_bConnected=false;
 }
 
-bool COMPort::openPort(void *arg){    
+bool COMPortLnx::openPort(void *arg){
     closePort();
     SerialParams *lnkPrm=reinterpret_cast<SerialParams*>(arg);
     if(lnkPrm==0){
@@ -39,33 +39,33 @@ bool COMPort::openPort(void *arg){
     return true;
 }
 
-bool COMPort::closePort(){    
+bool COMPortLnx::closePort(){
     close(m_iPortID);
     m_bConnected=false;
     return true;
 }
 
-bool COMPort::readPort(char *chPack, int iCnt){    
+bool COMPortLnx::readPort(char *chPack, int iCnt){
     int iVal=(read(m_iPortID,chPack,iCnt));    
     return(iVal>0);
 }
 
-bool COMPort::writePort(char *chPack, int iCnt){
+bool COMPortLnx::writePort(char *chPack, int iCnt){
     tcflush(m_iPortID,TCIOFLUSH);
     return (write(m_iPortID,chPack,iCnt)>0);
 }
 
-void *COMPort::getPortErr(){
+void *COMPortLnx::getPortErr(){
     if((m_iErr>=COMERRCNT)||(m_iErr<0))return &COMErrs[COMERRCNT-1];
     else
     return &COMErrs[m_iErr];
 }
 
-bool COMPort::setPrmsPort(SerialParams prm){
+bool COMPortLnx::setPrmsPort(SerialParams prm){
     return setPrmsPort(prm.iBaudRate,prm.iDataBits,prm.iStopBits,prm.iFlowCnt);
 }
 
-bool COMPort::setPrmsPort(int iBaud, int iDataBits, int iStopBits, int iFlow){
+bool COMPortLnx::setPrmsPort(int iBaud, int iDataBits, int iStopBits, int iFlow){
     int iSucs=0;
     struct termios newtio;
     tcgetattr(m_iPortID, &newtio);
@@ -104,7 +104,7 @@ bool COMPort::setPrmsPort(int iBaud, int iDataBits, int iStopBits, int iFlow){
     return (iSucs==0);
 }
 
-std::list<std::string> COMPort::getPorts(){
+std::list<std::string> COMPortLnx::getPorts(){
     DIR *dir;
     struct dirent *dp;
     std::string strFile;
@@ -123,7 +123,7 @@ std::list<std::string> COMPort::getPorts(){
     return lstPorts;
 }
 
-bool COMPort::isItPort(const char *chName){
+bool COMPortLnx::isItPort(const char *chName){
     int fd=-1;
     bool bResult=false;
     fd=open(chName,O_RDWR|O_NOCTTY|O_NDELAY);
@@ -135,14 +135,14 @@ bool COMPort::isItPort(const char *chName){
 }
 
 
-void *COMPort::getAllPorts(){
+void *COMPortLnx::getAllPorts(){
     m_lstPorts.clear();
     m_lstPorts=getPorts();
     return &m_lstPorts;
 }
 
 
-void *COMPort::getPrmPort(void *arg){    
+void *COMPortLnx::getPrmPort(void *arg){
     char *chName=reinterpret_cast<char*>(arg);
     if (chName==0)return 0;
     qDebug()<<chName;

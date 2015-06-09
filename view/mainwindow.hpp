@@ -14,6 +14,8 @@
 #include "./view/viewportadaptor.hpp"
 #include "./view/comportview.hpp"
 #include "../cntr/port/portinterface.hpp"
+#include "../cntr/device/deviceinterface.hpp"
+
 
 class MainWindow : public QMainWindow
 {
@@ -35,12 +37,14 @@ private:
     ConsoleView     *m_cnslIn;
     ConsoleView     *m_cnslOut;    
 
-    QAction             *m_actEncode;
     QAction             *m_actShowPorts;
     QAction             *m_actConnect;
+    QAction             *m_actQuit;
+
+    QAction             *m_actEncode;
     QAction             *m_actClrIn;
     QAction             *m_actClrOut;
-    QAction             *m_actQuit;
+    QAction             *m_actDevice;
     QPushButton    *m_btnLd;
 
     ComPortView        *m_viewCom;
@@ -48,6 +52,8 @@ private:
 
     ViewPortAdaptor  *m_adaptor;
     PortInterface         *m_port;    
+    DeviceInterface     *m_device;
+
 
     void                    prepareView();
     void                    prepareActions();

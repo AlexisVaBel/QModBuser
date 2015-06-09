@@ -4,9 +4,10 @@
 
 ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
     QTextEdit(parent){    
-    m_strStartLn       =    strStartLn;
-    m_convType         =    convHEX;
-    m_timerIdle         =    new QTimer(this);
+    m_iIdx                 =    0;
+    m_strStartLn      =    strStartLn;
+    m_convType        =    convHEX;
+    m_timerIdle        =    new QTimer(this);
     m_timerIdle->setInterval(TIME_IDLE);
     m_timerIdle->setSingleShot(true);
 
@@ -49,7 +50,10 @@ void ConsoleView::sendConvData(){
     QString strSend=this->textCursor().block().text();
     strSend=strSend.remove(m_strStartLn);
     if(strSend.isEmpty())return;
-
+    if(!m_lstSend.contains(strSend,Qt::CaseSensitive)){
+        m_lstSend.append(strSend);
+        m_iIdx=m_lstSend.count();
+    }
     int iCnt;
     char *pntCh;
     char chOut[256];
@@ -95,8 +99,14 @@ void ConsoleView::keyPressEvent(QKeyEvent *e){
     case    Qt::Key_Left:                
     case    Qt::Key_Right:
     case    Qt::Key_Down:
+        if(m_iIdx>=(m_lstSend.count()-1))return;
+        m_iIdx++;
+        goPrevCmds();
         break;
     case    Qt::Key_Up:
+        if(m_iIdx<=0)return;
+        m_iIdx--;
+        goPrevCmds();
         break;
     case    Qt::Key_Return:
     case    Qt::Key_Enter:        
@@ -111,4 +121,10 @@ void ConsoleView::keyPressEvent(QKeyEvent *e){
 
 void ConsoleView::contextMenuEvent(QContextMenuEvent *e){
     Q_UNUSED(e);
+}
+
+void ConsoleView::goPrevCmds(){
+    if(m_lstSend.isEmpty())return;
+    while(this->textCursor().block().text().compare(m_strStartLn,Qt::CaseInsensitive)!=0) this->textCursor().deletePreviousChar();
+    this->textCursor().insertText(m_lstSend.at(m_iIdx));
 }

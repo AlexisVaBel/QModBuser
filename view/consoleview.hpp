@@ -36,10 +36,14 @@ protected:
     void    contextMenuEvent(QContextMenuEvent *e);
 private:    
     CharCoder       *m_coder;
+    int                       m_iIdx;
+    QStringList         m_lstSend;
 
     QTimer              *m_timerIdle;        // to get idle in line
     QString              m_strStartLn;
     enmConvType   m_convType;
+
+    void                    goPrevCmds();
 };
 
 #endif // CONSOLEVIEW_HPP

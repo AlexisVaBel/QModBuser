@@ -1,15 +1,15 @@
 #include "mainwindow.hpp"
-#include "../cntr/port/comport.hpp"
+#include "../cntr/port/comportlnx.hpp"
 
 #include <QToolBar>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QThread>
 
-#include <QDebug>
 #include <QStandardItemModel>
 #include <QStringListModel>
+
+#include "./cntr/device/devmodbus.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent){
@@ -106,9 +106,10 @@ void MainWindow::prepareView(){
 }
 
 void MainWindow::prepareActions(){
-    m_actEncode         =new QAction(tr("Encode"),this);
+    m_actEncode        =new QAction(tr("Encode"),this);
     m_actClrIn           =new QAction(tr("Clear In"),this);
     m_actClrOut        =new QAction(tr("Clear Out"),this);
+    m_actDevice         =new QAction(tr("Device"),this);
 
     m_actShowPorts   =new QAction(tr("ShowPorts"),this);
     m_actQuit             =new QAction(tr("Quit"),this);
@@ -122,6 +123,7 @@ void MainWindow::prepareActions(){
     toolsUp->addAction(m_actEncode);
     toolsUp->addAction(m_actClrIn);
     toolsUp->addAction(m_actClrOut);
+    toolsUp->addAction(m_actDevice);
 
     toolsBottom->addAction(m_actShowPorts);
     toolsBottom->addAction(m_actConnect);
@@ -132,9 +134,12 @@ void MainWindow::prepareActions(){
 }
 
 void MainWindow::prepareElements(){    
-    m_cnslIn         =  new ConsoleView (this,"-->");
-    m_cnslOut      =  new ConsoleView (this,"<--");
-    m_port            =new COMPort();    
+    m_cnslIn        =  new ConsoleView (this,"-->");
+    m_cnslOut     =  new ConsoleView (this,"<--");
+    m_port           =  new COMPortLnx();
+    m_device        =  NULL;
+    m_device        =  new DevModBus(QString("./confs/devmodbus.yaml"));
+
     m_adaptor=new ViewPortAdaptor(this);
     m_adaptor->setViews(m_cnslIn,m_cnslOut);
     m_adaptor->setPorts(m_port);    

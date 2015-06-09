@@ -41,6 +41,7 @@ int CharCoder::encodToHEX(QString strSend, char *chOut, int iChLng){
             iVal=str.toInt(&ok,16);
             if(ok){
                 chOut[iPos++]=iVal;
+//                qDebug()<<"tosend"<<iVal;
             };
             str.clear();
             break;
@@ -49,6 +50,7 @@ int CharCoder::encodToHEX(QString strSend, char *chOut, int iChLng){
             iVal=str.toInt(&ok,16);
             if(ok){
                 chOut[iPos++]=iVal;
+//                qDebug()<<"tosend"<<iVal;
             };
             str.clear();
             continue;
@@ -87,6 +89,7 @@ QString CharCoder::decodeToHex(const char *data, int iCnt){
     int uiVal=0;
     for(int i=0;i<iCnt;i++){
         uiVal=data[i];
+//        qDebug()<<"received"<<uiVal;
         if(data[i]<0x00){
             uiVal=256+uiVal;
         }

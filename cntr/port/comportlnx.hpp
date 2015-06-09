@@ -1,5 +1,5 @@
-#ifndef COMPORT_HPP
-#define COMPORT_HPP
+#ifndef COMPORTLNX_HPP
+#define COMPORTLNX_HPP
 #include "portinterface.hpp"
 #include "cmn/serialparams.hpp"
 #include <string>
@@ -12,10 +12,10 @@ static const char    *COMDIR="/dev";
 
 void signal_handler_IO(int status);
 
-class COMPort : public PortInterface
+class COMPortLnx : public PortInterface
 {
 public:
-    COMPort();
+    COMPortLnx();
 
     // PortInterface interface
 public:
@@ -40,4 +40,4 @@ private:
     std::list<std::string> getPorts();
 };
 
-#endif // COMPORT_HPP
+#endif // COMPORTLNX_HPP
