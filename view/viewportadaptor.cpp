@@ -1,7 +1,8 @@
 #include "viewportadaptor.hpp"
 #include <termios.h>
 #include <QThread>
-#include <QDebug>
+
+#include <assert.h>
 
 ViewPortAdaptor::ViewPortAdaptor(QObject *obj):
 QObject(obj){
@@ -20,9 +21,11 @@ void ViewPortAdaptor::viewsSlots(){
 
 void ViewPortAdaptor::setPorts( PortInterface *port){
     m_port          =port;        
+    assert(m_port!=NULL);
 }
 
 bool ViewPortAdaptor::startListenPort(SerialParams prm){
+    assert(m_port!=NULL);
     if(!m_port->openPort(&prm)){
         return false;
     };

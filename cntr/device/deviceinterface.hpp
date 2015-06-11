@@ -1,15 +1,25 @@
 #ifndef DEVICEINTERFACE_HPP
 #define DEVICEINTERFACE_HPP
+
 #include <QString>
 
 class DeviceInterface{
-public:        
-    virtual void    cmdRead(QString str)    const= 0;
-    virtual void    cmdWrite(QString str)   const= 0;
-    virtual void    cmdProcs(QString str)   const=0;
+public:
+    DeviceInterface(QString name="none",QString cmd="no"):
+    m_sName(name),
+    m_sCmd(cmd){}
+    virtual QString getName()   {return m_sName ;}
+    virtual QString getCmd()    {return m_sCmd   ;}
+    virtual QString getAnswer(){return m_sAnsw  ;}
+
+    virtual void setName(QString sname)     {m_sName=sname ;}
+    virtual void setCmd(QString scmd)         {m_sCmd=scmd   ;}
+    virtual void setAnswer(QString sanswer){m_sAnsw=sanswer  ;}
 
 protected:
-    bool     m_bRun;
+    QString m_sName;
+    QString m_sCmd;
+    QString m_sAnsw;
 };
 
 #endif // DEVICEINTERFACE_HPP

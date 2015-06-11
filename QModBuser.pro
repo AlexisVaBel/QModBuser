@@ -15,8 +15,9 @@ SOURCES += \
     cmn/charcoder.cpp \
     view/encodeview.cpp \
     cntr/port/comportlnx.cpp \
+    cmn/simpleyaml.cpp \
     cntr/device/devmodbus.cpp \
-    cmn/simpleyaml.cpp
+    cntr/port/portfactory.cpp
 
 HEADERS += \
     cntr/port/portinterface.hpp \
@@ -30,8 +31,10 @@ HEADERS += \
     view/encodeview.h \
     cntr/port/comportlnx.hpp \
     cntr/device/deviceinterface.hpp \
+    cmn/simpleyaml.hpp \
+    cntr/device/cmdinterface.hpp \
     cntr/device/devmodbus.hpp \
-    cmn/simpleyaml.hpp
+    cntr/port/portfactory.hpp
 
 unix{
     INCLUDEPATH+=/usr/local/include/yaml

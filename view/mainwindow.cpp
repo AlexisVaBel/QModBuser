@@ -1,30 +1,48 @@
 #include "mainwindow.hpp"
-#include "../cntr/port/comportlnx.hpp"
+#include <assert.h>
 
 #include <QToolBar>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-
 #include <QStandardItemModel>
 #include <QStringListModel>
 
 #include "./cntr/device/devmodbus.hpp"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent){
+    prepareFactory();
     prepareElements();
     prepareView();    
     prepareActions();
+    prepareAdaptor();
     prepareSignSlots();
 }
 
-void MainWindow::portSelected(){
+MainWindow::~MainWindow(){
+    delete m_actShowPorts;
+    delete m_actConnect;
+    delete m_actQuit;
+    delete m_actEncode;
+    delete m_actClrIn;
+    delete m_actClrOut;
+    delete m_actDevice;
+    delete m_viewCom;
+    delete m_viewEnc;
+    delete m_adaptor;
+    delete m_port;
+    delete m_device;
+}
+
+void MainWindow::portSelected(){    
     m_lblPort->setText(m_viewCom->getPortWithPrms());
     m_actConnect->trigger();
 }
 
 void MainWindow::changePortState(bool bOpen){
+    qDebug()<<"try to conndect/disconnect";
     if(!bOpen){        
         m_lblStatus->setText(QString(" Disconnected"));
         m_lblStatus->setFont(QFont("Times", 12, QFont::Light));
@@ -32,16 +50,22 @@ void MainWindow::changePortState(bool bOpen){
         m_adaptor->stopListenPort();
     }else{
         m_actConnect->setText(tr("Disconnect"));
+        qDebug()<<"Read params";
         SerialParams prmIn;        
         prmIn=m_viewCom->getParams();
-        if(prmIn.strPort.empty()){            
+        qDebug()<<"Got params";
+        if(prmIn.strPort.empty()){
+            qDebug()<<"No port";
             m_actConnect->toggle();
             return;
         }
+        qDebug()<<"start to listen";
         if(!m_adaptor->startListenPort(prmIn)){            
+            qDebug()<<"don`t listen";
             m_actConnect->toggle();
             return;
         }
+        qDebug()<<"listening";
         m_lblStatus->setText(QString(" Connected"));
         m_lblStatus->setFont(QFont("Times", 12, QFont::Bold));
     }
@@ -64,6 +88,29 @@ void MainWindow::clearOut(){
     m_cnslOut->clear();
 }
 
+
+void MainWindow::prepareAdaptor(){
+    assert(m_port!=NULL);
+    assert(m_cnslIn!=NULL);
+    assert(m_cnslOut!=NULL);
+    m_adaptor=new ViewPortAdaptor(this);
+    m_adaptor->setViews(m_cnslIn,m_cnslOut);
+    m_adaptor->setPorts(m_port);
+    m_viewCom->setAdaptor(m_adaptor);
+}
+
+void MainWindow::prepareFactory(){
+    m_factPort=new PortFactory();
+}
+
+
+void MainWindow::prepareElements(){
+    assert(m_factPort!=NULL);
+    m_port           = (m_factPort->createPort(QString("portlinux")));
+    m_device        =  NULL;    
+}
+
+
 void MainWindow::prepareView(){
     QHBoxLayout *ltConsole,*ltControl,*ltParams;
     QVBoxLayout *ltMain;
@@ -72,16 +119,17 @@ void MainWindow::prepareView(){
     ltControl  =new QHBoxLayout();
     ltParams  =new QHBoxLayout();
 
+    m_cnslIn        =  new ConsoleView (this,"-->");
+    m_cnslOut     =  new ConsoleView (this,"<--");
     m_lblMain    = new QLabel();
     m_lblPort     = new QLabel();
     m_lblStatus  = new QLabel();
 
-    m_btnLd         =  new QPushButton();
+    m_btnLd         =  new QPushButton();   // dummy button not needed at all ))) for design only
     m_viewCom    =  new ComPortView();
     m_viewEnc     =  new EncodeView();
 
     m_viewCom->setModal(true);
-    m_viewCom->setAdaptor(m_adaptor);
 
     m_viewEnc->setModal(true);
 
@@ -131,18 +179,6 @@ void MainWindow::prepareActions(){
     toolsBottom->addAction(m_actQuit);
     addToolBar(Qt::TopToolBarArea,toolsUp);
     addToolBar(Qt::BottomToolBarArea,toolsBottom);
-}
-
-void MainWindow::prepareElements(){    
-    m_cnslIn        =  new ConsoleView (this,"-->");
-    m_cnslOut     =  new ConsoleView (this,"<--");
-    m_port           =  new COMPortLnx();
-    m_device        =  NULL;
-    m_device        =  new DevModBus(QString("./confs/devmodbus.yaml"));
-
-    m_adaptor=new ViewPortAdaptor(this);
-    m_adaptor->setViews(m_cnslIn,m_cnslOut);
-    m_adaptor->setPorts(m_port);    
 }
 
 void MainWindow::prepareSignSlots(){  

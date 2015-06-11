@@ -10,8 +10,13 @@
 
 #include <QDebug>
 
-COMPortLnx::COMPortLnx(){
-    m_bConnected=false;
+COMPortLnx::COMPortLnx():
+    m_bConnected(false),
+    m_sPort("portlinux"){
+}
+
+COMPortLnx::~COMPortLnx(){
+    qDebug()<<"comlinux is dead";
 }
 
 bool COMPortLnx::openPort(void *arg){
@@ -160,6 +165,9 @@ void *COMPortLnx::getPrmPort(void *arg){
     return &m_prms;
 }
 
+void *COMPortLnx::getPortType(){
+    return &m_sPort;
+}
 
 void signal_handler_IO(int status){
     qDebug()<<"received something"<<status;

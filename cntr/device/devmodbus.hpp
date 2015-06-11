@@ -1,19 +1,27 @@
 #ifndef DEVMODBUS_HPP
 #define DEVMODBUS_HPP
+#include "cmdinterface.hpp"
 #include "deviceinterface.hpp"
-
-#include <QString>
-
-class DevModBus : public DeviceInterface{
+class DevModBus:public CmdInterface
+{
 public:
-    DevModBus(QString strFile);
+    DevModBus(DeviceInterface *device=NULL);
+protected:
 
 
     // DeviceInterface interface
 public:
-    void cmdRead(QString str) const;
-    void cmdWrite(QString str) const;
-    void cmdProcs(QString str) const;
+    QString getName();
+    QString getCmd();
+    QString getAnswer();
+
+    // DeviceInterface interface
+public:
+    void setName(QString sname);
+    void setCmd(QString scmd);
+    void setAnswer(QString sanswer);
 };
+
+
 
 #endif // DEVMODBUS_HPP

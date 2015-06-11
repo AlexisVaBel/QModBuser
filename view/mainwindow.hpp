@@ -15,6 +15,7 @@
 #include "./view/comportview.hpp"
 #include "../cntr/port/portinterface.hpp"
 #include "../cntr/device/deviceinterface.hpp"
+#include "../cntr/port/portfactory.hpp"
 
 
 class MainWindow : public QMainWindow
@@ -22,6 +23,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 public slots:
     void                    portSelected();
     void                    changePortState(bool bOpen);
@@ -50,12 +52,16 @@ private:
     ComPortView        *m_viewCom;
     EncodeView           *m_viewEnc;
 
-    ViewPortAdaptor  *m_adaptor;
     PortInterface         *m_port;    
     DeviceInterface     *m_device;
+    PortFactory           *m_factPort;
+
+    ViewPortAdaptor  *m_adaptor;
 
 
     void                    prepareView();
+    void                    prepareAdaptor();
+    void                    prepareFactory();
     void                    prepareActions();
     void                    prepareElements();
     void                    prepareSignSlots();

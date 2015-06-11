@@ -30,7 +30,7 @@ class SimpleYaml
 public:
     SimpleYaml();
 private:
-    QMap<QString,YamlNode*> *m_mapNodes;
+    YamlNode *m_mapNodes;
 };
 
 #endif // SIMPLEYAML_HPP
