@@ -6,14 +6,14 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QTableWidget>
-#include "./view/viewportadaptor.hpp"
+#include "./cntr/rwadaptor.hpp"
 
 class ComPortView : public QDialog
 {
     Q_OBJECT
 public:
     explicit ComPortView(QWidget *parent = 0);
-    void      setAdaptor(ViewPortAdaptor *adaptor);
+    void      setAdaptor(RWAdaptor *adaptor);
     QString          getPortWithPrms(){return (m_strPort+"//"+m_cmbBaud->currentText()+"//"+m_cmbDataBits->currentText()+
                                                "//"+m_cmbStopBits->currentText()+"//"+m_cmbFlow->currentText());}
     QString          getPortName()    {return m_strPort;}
@@ -38,7 +38,7 @@ private:
     QPushButton             *m_btnCancel;
     QTableWidget           *m_tblPrms;
     QListWidget              *m_lstPorts;
-    ViewPortAdaptor     *m_adaptor;
+    RWAdaptor               *m_adaptor;
 
     QString             m_strPort;
     SerialParams    m_serialPrms;

@@ -3,13 +3,16 @@
 #include <QTextBlock>
 
 ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
-    QTextEdit(parent){    
+    QTextEdit(parent){
     m_iIdx                 =    0;
     m_strStartLn      =    strStartLn;
     m_convType        =    convHEX;
     m_timerIdle        =    new QTimer(this);
     m_timerIdle->setInterval(TIME_IDLE);
     m_timerIdle->setSingleShot(true);
+
+    m_reader             =new RWProvider(this);
+    m_writer              =new RWProvider(this);
 
     m_coder               =new CharCoder();
     QPalette              p=palette();
@@ -20,6 +23,7 @@ ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
     setPalette(p);    
     insertPlainText(m_strStartLn);
     connect(m_timerIdle,SIGNAL(timeout()),SLOT(createNextLine()));
+    connect(m_reader,SIGNAL(sendDataOut(const char*,int)),SLOT(getData(const char*,int)));
 }
 
 ConsoleView::~ConsoleView(){
@@ -69,7 +73,8 @@ void ConsoleView::sendConvData(){
     if(m_convType==convHEX){
         iCnt=m_coder->encodToHEX(strSend,pntCh,256);
     }
-    emit     sendDataOut(pntCh,iCnt);
+//    emit     sendDataOut(pntCh,iCnt);
+    m_writer->gotData(pntCh,iCnt);
 }
 
 void ConsoleView::createNextLine(){

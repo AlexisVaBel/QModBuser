@@ -1,9 +1,9 @@
 #include "portlistener.hpp"
 #include <iostream>
-#include <QDebug>
 
 PortListener::PortListener(QObject *parent) :
-    QObject(parent),m_port(0),m_bStop(false){
+    QObject(parent),m_port(0){
+    m_bStop=false;
 }
 
 void PortListener::setPort(PortInterface *port){

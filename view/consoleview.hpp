@@ -4,13 +4,15 @@
 #include <QString>
 #include <QTimer>
 #include <QPlainTextEdit>
+#include "../rw/rwprovider.hpp"
+
 #include "../cmn/charcoder.h"
-#include <QDebug>
+
 
 static const int MAX_IN_LINE  =40;
 static const int CNS_WIDTH      =320;
 static const int CNS_HEIGHT    =180;
-static const int TIME_IDLE  =50;   // 200 msecs to detect stop sending
+static const int TIME_IDLE        =50;   // 50 msecs to detect stop sending
 
 
 
@@ -19,7 +21,11 @@ class ConsoleView : public QTextEdit{
 public:
     explicit ConsoleView(QWidget *parent = 0, QString strStartLn="out");
     ~ConsoleView();
+//    friend  class RWProvider;
+
     void      clearOld();
+    RWProvider      *getReader(){return m_reader;}
+    RWProvider      *getWriter(){return m_writer;}
 public slots:
     void      getData(const char *data, int iCnt);
     void      sendConvData();
@@ -35,8 +41,10 @@ protected:
     void    keyPressEvent (QKeyEvent *e);
     void    contextMenuEvent(QContextMenuEvent *e);
 private:    
-    CharCoder       *m_coder;
     int                       m_iIdx;
+    CharCoder       *m_coder;
+    RWProvider      *m_reader;
+    RWProvider      *m_writer;
     QStringList         m_lstSend;
 
     QTimer              *m_timerIdle;        // to get idle in line

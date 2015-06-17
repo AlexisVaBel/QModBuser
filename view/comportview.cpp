@@ -13,7 +13,7 @@ ComPortView::ComPortView(QWidget *parent) :
     prepareSignSlots();
 }
 
-void ComPortView::setAdaptor(ViewPortAdaptor *adaptor){
+void ComPortView::setAdaptor(RWAdaptor *adaptor){
     m_adaptor=adaptor;
 }
 

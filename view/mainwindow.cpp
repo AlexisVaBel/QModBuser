@@ -8,8 +8,6 @@
 #include <QStandardItemModel>
 #include <QStringListModel>
 
-#include "./cntr/device/devmodbus.hpp"
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent){
@@ -33,7 +31,6 @@ MainWindow::~MainWindow(){
     delete m_viewEnc;
     delete m_adaptor;
     delete m_port;
-    delete m_device;
 }
 
 void MainWindow::portSelected(){    
@@ -42,7 +39,6 @@ void MainWindow::portSelected(){
 }
 
 void MainWindow::changePortState(bool bOpen){
-    qDebug()<<"try to conndect/disconnect";
     if(!bOpen){        
         m_lblStatus->setText(QString(" Disconnected"));
         m_lblStatus->setFont(QFont("Times", 12, QFont::Light));
@@ -50,25 +46,23 @@ void MainWindow::changePortState(bool bOpen){
         m_adaptor->stopListenPort();
     }else{
         m_actConnect->setText(tr("Disconnect"));
-        qDebug()<<"Read params";
         SerialParams prmIn;        
-        prmIn=m_viewCom->getParams();
-        qDebug()<<"Got params";
+        prmIn=m_viewCom->getParams();        
         if(prmIn.strPort.empty()){
-            qDebug()<<"No port";
             m_actConnect->toggle();
             return;
-        }
-        qDebug()<<"start to listen";
+        }        
         if(!m_adaptor->startListenPort(prmIn)){            
-            qDebug()<<"don`t listen";
             m_actConnect->toggle();
             return;
-        }
-        qDebug()<<"listening";
+        }        
         m_lblStatus->setText(QString(" Connected"));
         m_lblStatus->setFont(QFont("Times", 12, QFont::Bold));
     }
+}
+
+void MainWindow::loadDevice(){
+
 }
 
 void MainWindow::showPorts(){    
@@ -93,8 +87,9 @@ void MainWindow::prepareAdaptor(){
     assert(m_port!=NULL);
     assert(m_cnslIn!=NULL);
     assert(m_cnslOut!=NULL);
-    m_adaptor=new ViewPortAdaptor(this);
-    m_adaptor->setViews(m_cnslIn,m_cnslOut);
+    m_adaptor=new RWAdaptor(this);
+    m_adaptor->setReader(m_cnslIn->getReader());
+    m_adaptor->setWriter(m_cnslOut->getWriter());
     m_adaptor->setPorts(m_port);
     m_viewCom->setAdaptor(m_adaptor);
 }
@@ -106,10 +101,8 @@ void MainWindow::prepareFactory(){
 
 void MainWindow::prepareElements(){
     assert(m_factPort!=NULL);
-    m_port           = (m_factPort->createPort(QString("portlinux")));
-    m_device        =  NULL;    
+    m_port           = (m_factPort->createPort(QString("portlinux")));    
 }
-
 
 void MainWindow::prepareView(){
     QHBoxLayout *ltConsole,*ltControl,*ltParams;
@@ -190,6 +183,7 @@ void MainWindow::prepareSignSlots(){
   connect(m_actEncode       ,SIGNAL(triggered()),this,SLOT(showEncode()));
   connect(m_actClrIn          ,SIGNAL(triggered()),this,SLOT(clearIn()));
   connect(m_actClrOut       ,SIGNAL(triggered()),this,SLOT(clearOut()));
+  connect(m_actDevice        , SIGNAL(triggered()),this,SLOT(loadDevice()));
 
   connect(m_viewEnc,SIGNAL(okPressed(enmConvType)),m_cnslIn,SLOT(setConvType(enmConvType)));
   connect(m_viewEnc,SIGNAL(okPressed(enmConvType)),m_cnslOut,SLOT(setConvType(enmConvType)));

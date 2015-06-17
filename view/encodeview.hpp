@@ -1,5 +1,5 @@
-#ifndef ENCODEVIEW_H
-#define ENCODEVIEW_H
+#ifndef ENCODEVIEW_HPP
+#define ENCODEVIEW_HPP
 
 #include <QDialog>
 #include <QPushButton>
@@ -31,4 +31,4 @@ protected:
     void showEvent(QShowEvent *);
 };
 
-#endif // ENCODEVIEW_H
+#endif // ENCODEVIEW_HPP

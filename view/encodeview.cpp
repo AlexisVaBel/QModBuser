@@ -1,4 +1,4 @@
-#include "encodeview.h"
+#include "encodeview.hpp"
 
 #include <QGridLayout>
 

@@ -10,12 +10,12 @@
 
 #include "consoleview.hpp"
 
-#include "./view/encodeview.h"
-#include "./view/viewportadaptor.hpp"
+#include "./view/encodeview.hpp"
+#include "./cntr/rwadaptor.hpp"
 #include "./view/comportview.hpp"
-#include "../cntr/port/portinterface.hpp"
-#include "../cntr/device/deviceinterface.hpp"
-#include "../cntr/port/portfactory.hpp"
+#include "../port/portinterface.hpp"
+#include "../port/portfactory.hpp"
+
 
 
 class MainWindow : public QMainWindow
@@ -27,6 +27,7 @@ public:
 public slots:
     void                    portSelected();
     void                    changePortState(bool bOpen);
+    void                    loadDevice();
     void                    showPorts();
     void                    showEncode();
     void                    clearOut();
@@ -52,11 +53,11 @@ private:
     ComPortView        *m_viewCom;
     EncodeView           *m_viewEnc;
 
-    PortInterface         *m_port;    
-    DeviceInterface     *m_device;
+    PortInterface         *m_port;        
     PortFactory           *m_factPort;
 
-    ViewPortAdaptor  *m_adaptor;
+    RWAdaptor  *m_adaptor;
+
 
 
     void                    prepareView();
