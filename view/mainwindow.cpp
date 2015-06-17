@@ -90,7 +90,7 @@ void MainWindow::prepareAdaptor(){
     m_adaptor=new RWAdaptor(this);
     m_adaptor->setReader(m_cnslIn->getReader());
     m_adaptor->setWriter(m_cnslOut->getWriter());
-    m_adaptor->setPorts(m_port);
+    m_adaptor->setPort(m_port);
     m_viewCom->setAdaptor(m_adaptor);
 }
 

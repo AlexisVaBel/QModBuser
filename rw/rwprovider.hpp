@@ -8,8 +8,8 @@ Q_OBJECT
 public:
     RWProvider(QObject *obj);
     ~RWProvider();
-    void    gotData(const char*ch, int iCnt);
+    void    emitDataOut(const char*ch, int iCnt);
 signals:
-    void    sendDataOut(const char*,int iCnt);
+    void    sendDataOut(const char* ch,int iCnt);
 };
 #endif // RWPROVIDER_HPP

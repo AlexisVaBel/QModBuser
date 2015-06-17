@@ -8,7 +8,7 @@ RWProvider::~RWProvider(){
 
 }
 
-void RWProvider::gotData(const char *ch, int iCnt){
+void RWProvider::emitDataOut(const char *ch, int iCnt){
     emit sendDataOut(ch,iCnt);
 }
 

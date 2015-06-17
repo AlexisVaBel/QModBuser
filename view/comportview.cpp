@@ -248,10 +248,9 @@ void ComPortView::prepareView(){
 }
 
 void ComPortView::prepareSignSlots(){
-    connect(m_btnOk        ,SIGNAL(clicked())                                       ,this,SLOT(okPressed()));
-    connect(m_btnCancel ,SIGNAL(clicked())                                       ,this,SLOT(cancelPressed()));
-    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(okPressed()));
-//    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(showPortParams(QModelIndex)));
+    connect(m_btnOk        ,SIGNAL(clicked())                                       ,this,SLOT(okPressed())                               );
+    connect(m_btnCancel ,SIGNAL(clicked())                                       ,this,SLOT(cancelPressed())                         );
+    connect(m_lstPorts      ,SIGNAL(doubleClicked(QModelIndex))  ,this,SLOT(okPressed())                                );
     connect(m_lstPorts      ,SIGNAL(clicked(QModelIndex))               ,this,SLOT(showPortName(QModelIndex)));
 }
 

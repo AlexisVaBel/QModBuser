@@ -51,7 +51,7 @@ bool COMPortLnx::closePort(){
 }
 
 bool COMPortLnx::readPort(char *chPack, int iCnt){
-    int iVal=(read(m_iPortID,chPack,iCnt));    
+    int iVal=(read(m_iPortID,chPack,iCnt));
     return(iVal>0);
 }
 

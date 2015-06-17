@@ -1,4 +1,5 @@
 #include "rwadaptor.hpp"
+#include "../rw/devfactory.hpp"
 #include <termios.h>
 #include <QThread>
 #include <assert.h>
@@ -8,7 +9,7 @@ QObject(obj){
 }
 
 
-void RWAdaptor::setPorts( PortInterface *port){
+void RWAdaptor::setPort( PortInterface *port){
     m_port          =port;        
     assert(m_port!=NULL);
 }
@@ -18,20 +19,22 @@ bool RWAdaptor::startListenPort(SerialParams prm){
     if(!m_port->openPort(&prm)){
         return false;
     };
-    m_listener     =new PortListener();
-    m_listener->setPort(m_port);
+    // Здесь устройство надо выбирать
+    m_device     =DevFactory::getDevice(1);
+    assert(m_device!=0);
+    m_device->setPort(m_port);
     QThread *thr=new QThread(this);
-    m_listener->moveToThread(thr);
-    connect(thr,SIGNAL(started()),m_listener,SLOT(process()));
-    connect(m_listener,SIGNAL(byteReceived(char*)),this,SLOT(getPortByte(char*)));
-    connect(m_listener,SIGNAL(finishedProcs()),thr,SLOT(quit()));
+    m_device->moveToThread(thr);
+    connect(thr,SIGNAL(started()),m_device,SLOT(process()));
+    connect(m_device,SIGNAL(byteReceived(char*)),this,SLOT(getPortByte(char*)));
+    connect(m_device,SIGNAL(finishedProcs()),thr,SLOT(quit()));
     thr->start();
     return true;
 }
 
 void RWAdaptor::stopListenPort(){
-    if(m_listener!=0){
-        m_listener->stopProcs();
+    if(m_device!=0){
+        m_device->stopProcs();
     }
     if(m_port!=0){
         m_port->closePort();
@@ -64,7 +67,7 @@ SerialParams RWAdaptor::getPortPrms(QString strPort){
 
 void RWAdaptor::getPortByte(char *ch){
     assert(m_reader!=0);
-    m_reader->gotData(ch,1);
+    m_reader->emitDataOut(ch,1);
 }
 
 void RWAdaptor::connectWriter(){

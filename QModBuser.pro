@@ -2,7 +2,7 @@ TEMPLATE=app
 QT+=core
 QT+=widgets
 QT+=xml
-#CONFIG+=static
+CONFIG+=static
 
 TARGET=QModBuser
 
@@ -15,9 +15,12 @@ SOURCES += \
     view/encodeview.cpp \
     port/comportlnx.cpp \
     port/portfactory.cpp \
-    cntr/portlistener.cpp \
     cntr/rwadaptor.cpp \
-    rw/rwprovider.cpp
+    rw/rwprovider.cpp \
+    rw/devbase.cpp \
+    rw/devlistener.cpp \
+    rw/devfactory.cpp \
+    rw/devrw.cpp
 
 
 HEADERS += \    
@@ -30,9 +33,12 @@ HEADERS += \
     port/portinterface.hpp \
     port/comportlnx.hpp \
     port/portfactory.hpp \
-    cntr/portlistener.hpp \
     cntr/rwadaptor.hpp \
-    rw/rwprovider.hpp
+    rw/rwprovider.hpp \
+    rw/devbase.hpp \
+    rw/devlistener.hpp \
+    rw/devfactory.hpp \
+    rw/devrw.hpp
 
 
 #unix{

@@ -71,7 +71,7 @@ void ConsoleView::sendConvData(){
     if(m_convType==convHEX){
         iCnt=m_coder->encodToHEX(strSend,pntCh,256);
     }
-    m_writer->gotData(pntCh,iCnt);
+    m_writer->emitDataOut(pntCh,iCnt);
 }
 
 void ConsoleView::createNextLine(){

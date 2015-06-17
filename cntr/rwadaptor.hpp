@@ -2,17 +2,17 @@
 #define RWPORTADAPTOR_HPP
 
 #include <QObject>
-#include "../cmn/serialparams.hpp"
-#include "../cntr/portlistener.hpp"
-#include "../port/portinterface.hpp"
-#include "../rw/rwprovider.hpp"
 #include <QStringList>
+#include "../cmn/serialparams.hpp"
+#include "../port/portinterface.hpp"
+#include "../rw/devbase.hpp"
+#include "../rw/rwprovider.hpp"
 
 class RWAdaptor:public QObject{
 Q_OBJECT
 public:
     RWAdaptor(QObject *obj);    
-    void    setPorts  (PortInterface *port);
+    void    setPort  (PortInterface *port);
     void    setReader(RWProvider *reader){m_reader=reader;}
     void    setWriter(RWProvider *writer){m_writer=writer;connectWriter();}
 
@@ -24,12 +24,11 @@ public slots:
     QStringList    getPorts();
     void                 getPortByte(char *ch);
 private:    
-
     RWProvider     *m_reader;
     RWProvider     *m_writer;
 
     PortInterface    *m_port;
-    PortListener     *m_listener;
+    DevBase            *m_device;
     void                    connectWriter();
 };
 
