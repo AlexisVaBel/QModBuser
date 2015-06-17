@@ -1,42 +1,41 @@
 TEMPLATE=app
 QT+=core
 QT+=widgets
+QT+=xml
 #CONFIG+=static
 
 TARGET=QModBuser
 
 SOURCES += \
-    main.cpp \
-    cntr/portlistener.cpp \
+    main.cpp \    
     view/consoleview.cpp \
     view/mainwindow.cpp \
-    view/viewportadaptor.cpp \
     view/comportview.cpp \
     cmn/charcoder.cpp \
     view/encodeview.cpp \
-    cntr/port/comportlnx.cpp \
-    cmn/simpleyaml.cpp \
-    cntr/device/devmodbus.cpp \
-    cntr/port/portfactory.cpp
+    port/comportlnx.cpp \
+    port/portfactory.cpp \
+    cntr/portlistener.cpp \
+    cntr/rwadaptor.cpp \
+    rw/rwprovider.cpp
 
-HEADERS += \
-    cntr/port/portinterface.hpp \
-    cntr/port/cmn/serialparams.hpp \
-    cntr/portlistener.hpp \
+
+HEADERS += \    
     view/consoleview.hpp \
     view/mainwindow.hpp \
-    view/viewportadaptor.hpp \
     view/comportview.hpp \
+    view/encodeview.hpp \
     cmn/charcoder.h \
-    view/encodeview.h \
-    cntr/port/comportlnx.hpp \
-    cntr/device/deviceinterface.hpp \
-    cmn/simpleyaml.hpp \
-    cntr/device/cmdinterface.hpp \
-    cntr/device/devmodbus.hpp \
-    cntr/port/portfactory.hpp
+    cmn/serialparams.hpp \
+    port/portinterface.hpp \
+    port/comportlnx.hpp \
+    port/portfactory.hpp \
+    cntr/portlistener.hpp \
+    cntr/rwadaptor.hpp \
+    rw/rwprovider.hpp
 
-unix{
-    INCLUDEPATH+=/usr/local/include/yaml
-    LIBS+=-L/usr/local/lib -lyaml-cpp
-}
+
+#unix{
+#    INCLUDEPATH+=/usr/local/include/yaml
+#    LIBS+=-L/usr/local/lib -lyaml-cpp
+#}

@@ -13,7 +13,7 @@ int CharCoder::encodToUTF8(QString strSend, char *chOut, int iChLng){
     int iPos=0;
     if(strSend.count()>=iChLng)  return iPos;
     while(iPos<strSend.count()){
-        *(chOut)=strSend.at(iPos++).toAscii();
+        *(chOut)=strSend.at(iPos++).toLatin1();
         chOut++;
     };
     return iPos;

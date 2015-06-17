@@ -2,18 +2,20 @@
 #define RWPORTADAPTOR_HPP
 
 #include <QObject>
-#include "./cmn/serialparams.hpp"
+#include "../cmn/serialparams.hpp"
 #include "../cntr/portlistener.hpp"
 #include "../port/portinterface.hpp"
 #include "../rw/rwprovider.hpp"
+#include <QStringList>
 
 class RWAdaptor:public QObject{
 Q_OBJECT
 public:
     RWAdaptor(QObject *obj);    
+    void    setPorts  (PortInterface *port);
     void    setReader(RWProvider *reader){m_reader=reader;}
     void    setWriter(RWProvider *writer){m_writer=writer;connectWriter();}
-    void    setPorts  (PortInterface *port);
+
 public slots:
     void                 setPortData(const char *ch, int iCnt);
     bool                 startListenPort(SerialParams prm);

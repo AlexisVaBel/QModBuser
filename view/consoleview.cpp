@@ -9,15 +9,13 @@ ConsoleView::ConsoleView(QWidget *parent, QString strStartLn) :
     m_convType        =    convHEX;
     m_timerIdle        =    new QTimer(this);
     m_timerIdle->setInterval(TIME_IDLE);
-    m_timerIdle->setSingleShot(true);
-
+    m_timerIdle->setSingleShot(true);    
     m_reader             =new RWProvider(this);
     m_writer              =new RWProvider(this);
-
     m_coder               =new CharCoder();
     QPalette              p=palette();
     setMinimumSize(QSize(CNS_WIDTH,CNS_HEIGHT));
-    document()->setMaximumBlockCount(1000);
+    document()->setMaximumBlockCount(MAXBLOCKCNT);
     p.setColor(QPalette::Base,Qt::black);
     p.setColor(QPalette::Text,Qt::green);
     setPalette(p);    
@@ -73,7 +71,6 @@ void ConsoleView::sendConvData(){
     if(m_convType==convHEX){
         iCnt=m_coder->encodToHEX(strSend,pntCh,256);
     }
-//    emit     sendDataOut(pntCh,iCnt);
     m_writer->gotData(pntCh,iCnt);
 }
 

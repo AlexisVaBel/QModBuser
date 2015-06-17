@@ -2,17 +2,17 @@
 #define CONSOLEVIEW_HPP
 
 #include <QString>
+#include <QStringList>
 #include <QTimer>
 #include <QPlainTextEdit>
-#include "../rw/rwprovider.hpp"
-
 #include "../cmn/charcoder.h"
-
+#include "../rw/rwprovider.hpp"
 
 static const int MAX_IN_LINE  =40;
 static const int CNS_WIDTH      =320;
 static const int CNS_HEIGHT    =180;
 static const int TIME_IDLE        =50;   // 50 msecs to detect stop sending
+static const int MAXBLOCKCNT=1000;
 
 
 
@@ -21,7 +21,6 @@ class ConsoleView : public QTextEdit{
 public:
     explicit ConsoleView(QWidget *parent = 0, QString strStartLn="out");
     ~ConsoleView();
-//    friend  class RWProvider;
 
     void      clearOld();
     RWProvider      *getReader(){return m_reader;}
@@ -43,9 +42,9 @@ protected:
 private:    
     int                       m_iIdx;
     CharCoder       *m_coder;
+    QStringList         m_lstSend;
     RWProvider      *m_reader;
     RWProvider      *m_writer;
-    QStringList         m_lstSend;
 
     QTimer              *m_timerIdle;        // to get idle in line
     QString              m_strStartLn;

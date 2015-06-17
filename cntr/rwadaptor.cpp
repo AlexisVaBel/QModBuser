@@ -1,7 +1,6 @@
 #include "rwadaptor.hpp"
 #include <termios.h>
 #include <QThread>
-#include <QStringList>
 #include <assert.h>
 
 RWAdaptor::RWAdaptor(QObject *obj):
@@ -64,10 +63,12 @@ SerialParams RWAdaptor::getPortPrms(QString strPort){
 }
 
 void RWAdaptor::getPortByte(char *ch){
+    assert(m_reader!=0);
     m_reader->gotData(ch,1);
 }
 
 void RWAdaptor::connectWriter(){
+    assert(m_writer!=0);
     connect(m_writer,SIGNAL(sendDataOut(const char*,int)),this,SLOT(setPortData(const char*,int)));
 }
 
